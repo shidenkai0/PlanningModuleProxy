@@ -4,6 +4,9 @@ import geopy
 import time
 import csv
 
+K=1
+GPS_REFERENCE = 36.370373, 127.36136910000005
+
 class UavInstruction(object):
 
     def __init__(self, uav_id=0, start=geopy.Point(36.370373, 127.36136910000005), dest=geopy.Point(36.370373, 127.36136910000005), timestamp=time.localtime(time.time())):
@@ -28,6 +31,13 @@ class UavInstruction(object):
             raise RuntimeError('Invalid UAV Id')
 
 
+# Convert cartesian to WGS84 coordinates
+def cartesian_to_gps_ref(x, y):
+    long_gps=GPS_REFERENCE[1]+K*x
+    lat_gps=GPS_REFERENCE[0]+K*y
+    return lat_gps, long_gps
+
+
 def read_csv(name):
 
     with open(name, 'r') as csvfile:
@@ -35,6 +45,7 @@ def read_csv(name):
 
         for row in actionreader:
             print row
+            print cartesian_to_gps_ref(float(row['start_x']), float(row['start_y']))
 
         csvfile.close()
     return 1
