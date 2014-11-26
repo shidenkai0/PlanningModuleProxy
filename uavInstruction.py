@@ -45,25 +45,29 @@ def cartesian_to_gps_ref(x, y):
 
 
 
-
+# Reads a CSV File and Outputs a List containing Uav Instructions as objects
 def read_csv(name):
+
+    instructions_list = []
 
     with open(name, 'r') as csvfile:
         actionreader=csv.DictReader(csvfile, delimiter=',')
 
         for row in actionreader:
-            print row
-            t = cartesian_to_gps_ref(float(row['start_x']), float(row['start_y']))
-            print t
-            print gps_to_cartesian_ref(t[0], t[1])
+            start = cartesian_to_gps_ref(float(row['start_x']), float(row['start_y']))
+            dest = cartesian_to_gps_ref(float(row['dest_x']), float(row['dest_y']))
+            start_point = geopy.Point(start[0], start[1])
+            dest_point = geopy.Point(dest[0], dest[1])
+            timestamp = time.strptime(row['time'], '%H:%M')
+            inst = UavInstruction(int(row['uav_id']), start_point, dest_point, timestamp)
+            instructions_list.append(inst)
 
-        csvfile.close()
-    return 1
+    return instructions_list
 
 
 def main():
-    uavinst1 = UavInstruction(3, geopy.Point(36.370373, 127.36136910000005), geopy.Point(1,0), time.localtime(time.time()))
-    print read_csv('input.csv')
+    for instruct in read_csv('input.csv'):
+        print instruct.start
 
 main()
 
